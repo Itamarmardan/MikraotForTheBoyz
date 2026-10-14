@@ -177,3 +177,8 @@ main{max-width:760px;margin:0 auto;padding:18px 14px 70px}
   .stat{min-width:64px}
 }
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+#q-hint{padding:0 22px 6px;font-size:.85rem;color:var(--gold-dk);font-weight:600}
+#q-hint:empty{display:none}
+.opt-btn.selected{border-color:var(--navy);background:var(--white);box-shadow:0 0 0 2px rgba(22,33,62,.15)}
+.opt-btn.selected .opt-letter{background:var(--navy);color:var(--gold);border-color:var(--navy)}

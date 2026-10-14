@@ -1,5 +1,9 @@
 /* ======= STATE ======= */
-let currentCh='all', activeQ=[], curIdx=0, answers={}, nCorrect=0, nWrong=0;
+let currentCh='all', activeQ=[], curIdx=0, answers={}, pending={}, nCorrect=0, nWrong=0;
+
+const isMulti=q=>Array.isArray(q.a);
+const correctSet=q=>isMulti(q)?q.a:[q.a];
+const isRight=(q,ans)=>isMulti(q)?(ans.length===q.a.length&&ans.every(x=>q.a.includes(x))):ans===q.a;
 
 const $=id=>document.getElementById(id);
 const answeredCount=()=>Object.keys(answers).length;
@@ -7,7 +11,7 @@ const answeredCount=()=>Object.keys(answers).length;
 function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
 function load(ch,override){
-  currentCh=ch; answers={}; nCorrect=0; nWrong=0;
+  currentCh=ch; answers={}; pending={}; nCorrect=0; nWrong=0;
   activeQ=override?override: ch==='all'?shuffle([...Q]):ch==='mk_all'?shuffle(Q.filter(q=>q.c.startsWith('mk'))):shuffle(Q.filter(q=>q.c===ch));
   document.querySelectorAll('.ch-btn').forEach(b=>b.classList.toggle('active',b.dataset.chapter===ch));
   curIdx=0;
@@ -28,24 +32,26 @@ function show(idx){
   $('q-chapter-label').textContent=CH[q.c]||q.c;
   $('q-counter').textContent=`שאלה ${idx+1} מתוך ${activeQ.length}`;
   $('q-text').textContent=q.q;
+  $('q-hint').textContent=isMulti(q)&&ans===undefined?`יש לבחור ${q.a.length} תשובות (${(pending[idx]||[]).length}/${q.a.length})`:'';
   const list=$('options-list'); list.innerHTML='';
   q.o.forEach((opt,i)=>{
     const btn=document.createElement('button');
     btn.className='opt-btn';
     if(ans!==undefined){
       btn.disabled=true;
-      if(i===q.a)btn.classList.add('correct');
-      else if(i===ans)btn.classList.add('wrong');
-    }
+      const chosen=isMulti(q)?ans.includes(i):i===ans;
+      if(correctSet(q).includes(i))btn.classList.add('correct');
+      else if(chosen)btn.classList.add('wrong');
+    }else if(isMulti(q)&&(pending[idx]||[]).includes(i))btn.classList.add('selected');
     btn.innerHTML=`<span class="opt-letter">${L[i]}</span><span>${opt}</span>`;
     btn.addEventListener('click',()=>pick(i));
     list.appendChild(btn);
   });
   const fb=$('feedback-box');
   if(ans!==undefined){
-    const ok=ans===q.a;
+    const ok=isRight(q,ans);
     fb.className='show '+(ok?'correct-fb':'wrong-fb');
-    fb.innerHTML=`<div id="feedback-verdict">${ok?'✓ נכון!':'✗ לא נכון'}</div><div>${q.e}</div>`;
+    fb.innerHTML=`<div id="feedback-verdict">${ok?'✓ נכון!':'✗ לא נכון'}</div>${q.e?`<div>${q.e}</div>`:''}`;
   }else{fb.className='';fb.innerHTML='';}
   updateNav();
   const done=answeredCount();
@@ -66,8 +72,14 @@ function updateNav(){
 
 function pick(i){
   if(answers[curIdx]!==undefined)return;
-  answers[curIdx]=i;
-  if(i===activeQ[curIdx].a)nCorrect++;else nWrong++;
+  const q=activeQ[curIdx];
+  if(isMulti(q)){
+    const sel=pending[curIdx]=pending[curIdx]||[];
+    const at=sel.indexOf(i); if(at>=0)sel.splice(at,1);else sel.push(i);
+    if(sel.length<q.a.length){show(curIdx);return;}
+    answers[curIdx]=[...sel].sort();
+  }else answers[curIdx]=i;
+  if(isRight(q,answers[curIdx]))nCorrect++;else nWrong++;
   updateStats(); show(curIdx);
   // אין מעבר אוטומטי – המשתמש לוחץ על "הבאה" בעצמו
 }
@@ -108,7 +120,7 @@ $('btn-skip').addEventListener('click',()=>{
 });
 $('btn-restart').addEventListener('click',()=>load(currentCh));
 $('btn-retry').addEventListener('click',()=>{
-  const wrong=activeQ.filter((_,i)=>answers[i]!==undefined&&answers[i]!==activeQ[i].a);
+  const wrong=activeQ.filter((q,i)=>answers[i]!==undefined&&!isRight(q,answers[i]));
   load(currentCh,shuffle(wrong));
 });
 document.addEventListener('keydown',e=>{
