@@ -1,0 +1,179 @@
+:root{
+  --navy:#16213e;--navy-2:#1f2f5a;--navy-3:#2a3f77;
+  --gold:#c8a84b;--gold-lt:#f0e2b6;--gold-dk:#a88a30;
+  --bg:#f4f1ea;--white:#fff;
+  --green:#2d6a4f;--green-bg:#e8f5ed;
+  --red:#a22a3c;--red-bg:#fbeaec;
+  --text:#1c1c24;--muted:#6f6f78;--border:#e2dccd;
+  --radius:14px;
+  --shadow:0 4px 24px rgba(22,33,62,.09);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Heebo',system-ui,sans-serif;color:var(--text);min-height:100vh;
+  font-size:16px;line-height:1.6;
+  background:
+    radial-gradient(circle at 15% 0%,rgba(200,168,75,.12),transparent 40%),
+    radial-gradient(circle at 90% 30%,rgba(31,47,90,.07),transparent 45%),
+    var(--bg);
+  background-attachment:fixed;
+}
+button{font-family:inherit}
+
+/* ===== header ===== */
+header{
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 100%);
+  padding:30px 20px 24px;text-align:center;position:relative;
+  border-bottom:3px solid var(--gold);
+}
+header::after{
+  content:"";position:absolute;inset:auto 0 -3px 0;height:3px;
+  background:linear-gradient(90deg,transparent,var(--gold-lt),transparent);
+}
+header h1{
+  font-family:'Frank Ruhl Libre',serif;font-weight:900;letter-spacing:.5px;
+  font-size:clamp(1.7rem,5.5vw,2.5rem);color:var(--gold);
+  text-shadow:0 2px 12px rgba(0,0,0,.3);
+}
+header p{color:#a9bbdc;font-size:.9rem;margin-top:4px;font-weight:300}
+
+/* ===== chapter bar ===== */
+#chapter-bar{
+  display:flex;flex-direction:column;align-items:center;gap:9px;padding:12px 16px;
+  background:rgba(255,255,255,.88);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 14px rgba(0,0,0,.06);
+}
+.bar-group{display:flex;align-items:center;flex-wrap:wrap;gap:6px;justify-content:center}
+.bar-label{font-size:.74rem;color:var(--muted);font-weight:700;white-space:nowrap;padding-left:4px}
+.ch-btn{
+  font-size:.8rem;font-weight:500;padding:6px 15px;border-radius:999px;
+  border:1.5px solid var(--navy-3);background:transparent;color:var(--navy);cursor:pointer;
+  transition:all .18s ease;
+}
+.ch-btn:hover{background:rgba(22,33,62,.08);transform:translateY(-1px)}
+.ch-btn.active{background:var(--navy);color:var(--gold);border-color:var(--navy);box-shadow:0 3px 10px rgba(22,33,62,.25)}
+
+/* ===== stats ===== */
+#stats-bar{
+  display:flex;justify-content:center;gap:12px;padding:14px 16px 0;
+  max-width:760px;margin:0 auto;flex-wrap:wrap;
+}
+.stat{
+  flex:1;min-width:76px;text-align:center;background:var(--white);border:1px solid var(--border);
+  border-radius:12px;padding:8px 10px;font-size:.74rem;color:var(--muted);
+  box-shadow:0 1px 4px rgba(0,0,0,.04);
+}
+.stat-num{display:block;font-weight:700;font-size:1.3rem;line-height:1.2;color:var(--text)}
+.stat-num.green{color:var(--green)}.stat-num.red{color:var(--red)}
+
+/* ===== main ===== */
+main{max-width:760px;margin:0 auto;padding:18px 14px 70px}
+#progress-wrap{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+#progress-bar-bg{flex:1;height:8px;background:var(--border);border-radius:99px;overflow:hidden}
+#progress-bar-fill{
+  height:100%;width:0;border-radius:99px;
+  background:linear-gradient(90deg,var(--gold-dk),var(--gold),var(--gold-lt));
+  transition:width .4s cubic-bezier(.4,0,.2,1);
+}
+#progress-label{font-size:.78rem;color:var(--muted);white-space:nowrap;font-weight:500}
+
+/* ===== question card ===== */
+#q-card{
+  background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);
+  overflow:hidden;border:1px solid var(--border);
+}
+#q-card.enter{animation:slideIn .28s ease}
+@keyframes slideIn{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
+#q-header{
+  background:linear-gradient(135deg,var(--navy),var(--navy-2));
+  padding:13px 20px;display:flex;justify-content:space-between;align-items:center;
+}
+#q-counter{font-size:.8rem;color:#a9bbdc;font-weight:400}
+#q-chapter-label{
+  font-size:.74rem;color:var(--navy);background:var(--gold);padding:3px 12px;
+  border-radius:99px;font-weight:700;
+}
+#q-text{
+  font-family:'Frank Ruhl Libre',serif;font-size:1.3rem;font-weight:500;line-height:1.7;
+  padding:26px 22px 20px;color:var(--navy);
+}
+#options-list{padding:4px 18px 16px;display:flex;flex-direction:column;gap:10px}
+.opt-btn{
+  display:flex;align-items:center;gap:12px;width:100%;text-align:right;
+  background:var(--bg);border:2px solid var(--border);border-radius:11px;
+  padding:12px 14px;cursor:pointer;font-size:1rem;line-height:1.5;color:var(--text);
+  transition:border-color .15s,background .15s,transform .15s,box-shadow .15s;
+}
+.opt-btn:hover:not(:disabled){
+  border-color:var(--navy-3);background:var(--white);transform:translateX(-3px);
+  box-shadow:0 3px 12px rgba(22,33,62,.1);
+}
+.opt-btn:focus-visible,.nav-btn:focus-visible,.ch-btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.opt-letter{
+  display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:30px;
+  border-radius:50%;background:var(--white);border:2px solid var(--border);
+  color:var(--navy);font-weight:700;font-size:.85rem;flex-shrink:0;transition:all .15s;
+}
+.opt-btn:hover:not(:disabled) .opt-letter{background:var(--navy);color:var(--gold);border-color:var(--navy)}
+.opt-btn.correct{background:var(--green-bg);border-color:var(--green)}
+.opt-btn.correct .opt-letter{background:var(--green);color:#fff;border-color:var(--green)}
+.opt-btn.wrong{background:var(--red-bg);border-color:var(--red);animation:shake .35s}
+.opt-btn.wrong .opt-letter{background:var(--red);color:#fff;border-color:var(--red)}
+.opt-btn:disabled{cursor:default}
+.opt-btn:disabled:not(.correct):not(.wrong){opacity:.55}
+@keyframes shake{25%{transform:translateX(5px)}50%{transform:translateX(-5px)}75%{transform:translateX(3px)}}
+
+/* ===== feedback ===== */
+#feedback-box{display:none;margin:0 18px 16px;padding:14px 16px;border-radius:11px;font-size:.93rem;line-height:1.7}
+#feedback-box.show{display:block;animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+#feedback-box.correct-fb{background:var(--green-bg);border-right:5px solid var(--green);color:#173d29}
+#feedback-box.wrong-fb{background:var(--red-bg);border-right:5px solid var(--red);color:#4a1020}
+#feedback-verdict{font-weight:700;font-size:1.02rem;margin-bottom:3px}
+
+/* ===== nav ===== */
+#nav-row{display:flex;justify-content:space-between;align-items:center;padding:4px 18px 20px;gap:10px}
+.nav-btn{
+  font-size:.95rem;font-weight:600;padding:11px 24px;border-radius:10px;border:none;
+  cursor:pointer;transition:all .15s;
+}
+.nav-btn:disabled{opacity:.3;cursor:default}
+#btn-prev{background:var(--border);color:var(--navy)}
+#btn-prev:not(:disabled):hover{background:#d3ccba}
+#btn-next{background:var(--navy);color:var(--white);box-shadow:0 3px 10px rgba(22,33,62,.25)}
+#btn-next:not(:disabled):hover{background:var(--navy-3);transform:translateY(-1px)}
+#btn-next.ready{background:var(--gold);color:var(--navy);animation:pulse 1.6s ease-in-out infinite}
+#btn-next.ready:hover{background:var(--gold-dk);color:#fff}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(200,168,75,.55)}50%{box-shadow:0 0 0 9px rgba(200,168,75,0)}}
+#btn-skip{
+  font-size:.82rem;background:none;border:1.5px dashed var(--border);color:var(--muted);
+  padding:7px 16px;border-radius:8px;cursor:pointer;display:block;margin:16px auto 0;transition:all .15s;
+}
+#btn-skip:hover{border-color:var(--navy);color:var(--navy)}
+
+/* ===== results ===== */
+#result-screen{
+  display:none;background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);
+  border:1px solid var(--border);padding:38px 24px;text-align:center;
+}
+#result-screen.show{display:block;animation:fadeUp .4s ease}
+#result-emoji{font-size:3.6rem;margin-bottom:8px}
+#result-title{font-family:'Frank Ruhl Libre',serif;font-size:1.9rem;font-weight:900;color:var(--navy);margin-bottom:4px}
+#result-score{font-size:3.4rem;font-weight:800;color:var(--gold);margin:6px 0}
+#result-detail{color:var(--muted);font-size:.92rem;margin-bottom:22px}
+.res-btn{font-size:.95rem;font-weight:600;padding:12px 28px;border-radius:10px;border:none;cursor:pointer;margin:4px;transition:all .15s}
+#btn-restart{background:var(--navy);color:var(--white)}
+#btn-restart:hover{background:var(--navy-3);transform:translateY(-1px)}
+#btn-retry{background:var(--red);color:var(--white);display:none}
+#btn-retry.show{display:inline-block}
+#btn-retry:hover{background:#7d1f2e;transform:translateY(-1px)}
+
+@media(max-width:480px){
+  #q-text{font-size:1.12rem;padding:18px 16px 14px}
+  .opt-btn{font-size:.93rem;padding:10px 11px}
+  .nav-btn{padding:10px 16px}
+  .stat{min-width:64px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
