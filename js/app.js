@@ -37,45 +37,52 @@ function load(ch,override){
   $('progress-wrap').style.display='';
 }
 
-function show(idx){
+function show(idx,fresh=true){
   curIdx=idx;
   const q=activeQ[idx]; if(!q)return;
   const ans=answers[idx];
   const card=$('q-card');
-  card.classList.remove('enter'); void card.offsetWidth; card.classList.add('enter');
-  $('q-chapter-label').textContent=CH[q.c]||q.c;
-  $('q-counter').textContent=`שאלה ${idx+1} מתוך ${activeQ.length}`;
-  $('q-text').textContent=q.q;
+  const list=$('options-list');
   const sel=pending[idx]||[];
-  $('q-hint').textContent=ans!==undefined?'':isOrder(q)?`לחצו על הפריטים לפי הסדר הנכון (${sel.length}/${q.o.length})`:isMulti(q)?`יש לבחור ${q.a.length} תשובות (${sel.length}/${q.a.length})`:'';
-  const list=$('options-list'); list.innerHTML='';
-  (isOrder(q)?perm(q):q.o.map((_,i)=>i)).forEach(i=>{
-    const opt=q.o[i];
-    const btn=document.createElement('button');
-    btn.className='opt-btn';
-    if(isOrder(q)){
-      const pos=(ans!==undefined?ans:sel).indexOf(i);
-      if(ans!==undefined){btn.disabled=true;btn.classList.add(ans[pos]===pos?'correct':'wrong');}
-      else if(pos>=0)btn.classList.add('selected');
-      btn.innerHTML=`<span class="opt-letter">${pos>=0?pos+1:''}</span><span>${opt}</span>`;
+  if(fresh){
+    card.classList.remove('enter'); void card.offsetWidth; card.classList.add('enter');
+    $('q-chapter-label').textContent=CH[q.c]||q.c;
+    $('q-counter').textContent=`שאלה ${idx+1} מתוך ${activeQ.length}`;
+    $('q-text').textContent=q.q;
+    list.innerHTML='';
+    (isOrder(q)?perm(q):q.o.map((_,i)=>i)).forEach(i=>{
+      const btn=document.createElement('button');
+      btn.className='opt-btn'; btn.dataset.i=i;
+      btn.innerHTML=`<span class="opt-letter"></span><span>${q.o[i]}</span>`;
       btn.addEventListener('click',()=>pick(i));
       list.appendChild(btn);
-      return;
-    }
-    if(ans!==undefined){
-      btn.disabled=true;
+    });
+  }
+  $('q-hint').textContent=ans!==undefined?'':isOrder(q)?`לחצו על הפריטים לפי הסדר הנכון (${sel.length}/${q.o.length})`:isMulti(q)?`יש לבחור ${q.a.length} תשובות (${sel.length}/${q.a.length})`:'';
+  /* צביעה במקום – הכפתורים לא נבנים מחדש, ולכן הצבעים נכנסים בהדרגה (transition) */
+  list.querySelectorAll('.opt-btn').forEach(btn=>{
+    const i=+btn.dataset.i;
+    const letter=btn.firstChild;
+    let state='',txt=L[i];
+    if(isOrder(q)){
+      const pos=(ans!==undefined?ans:sel).indexOf(i);
+      txt=pos>=0?pos+1:'';
+      if(ans!==undefined)state=ans[pos]===pos?'correct':'wrong';
+      else if(pos>=0)state='selected';
+    }else if(ans!==undefined){
       const chosen=isMulti(q)?ans.includes(i):i===ans;
-      if(correctSet(q).includes(i))btn.classList.add('correct');
-      else if(chosen)btn.classList.add('wrong');
-    }else if(isMulti(q)&&sel.includes(i))btn.classList.add('selected');
-    btn.innerHTML=`<span class="opt-letter">${L[i]}</span><span>${opt}</span>`;
-    btn.addEventListener('click',()=>pick(i));
-    list.appendChild(btn);
+      if(correctSet(q).includes(i))state='correct';else if(chosen)state='wrong';
+    }else if(isMulti(q)&&sel.includes(i))state='selected';
+    btn.classList.remove('correct','wrong','selected');
+    if(state)btn.classList.add(state);
+    btn.disabled=ans!==undefined;
+    if(letter.textContent!==String(txt))letter.textContent=txt;
   });
   const fb=$('feedback-box');
   if(ans!==undefined){
     const ok=isRight(q,ans);
-    fb.className='show '+(ok?'correct-fb':'wrong-fb');
+    const wasShown=fb.classList.contains('show');
+    fb.className='show '+(ok?'correct-fb':'wrong-fb')+(fresh||wasShown?' instant':'');
     fb.innerHTML=`<div id="feedback-verdict">${ok?'✓ נכון!':'✗ לא נכון'}</div>${isOrder(q)&&!ok?`<div><b>הסדר הנכון:</b><ol class="order-ans">${q.o.map(x=>`<li>${x}</li>`).join('')}</ol></div>`:''}${q.e?`<div>${q.e}</div>`:''}`;
   }else{fb.className='';fb.innerHTML='';}
   updateNav();
@@ -101,11 +108,11 @@ function pick(i){
   if(isMulti(q)||isOrder(q)){
     const sel=pending[curIdx]=pending[curIdx]||[];
     const at=sel.indexOf(i); if(at>=0)sel.splice(at,1);else sel.push(i);
-    if(sel.length<needed(q)){show(curIdx);return;}
+    if(sel.length<needed(q)){show(curIdx,false);return;}
     answers[curIdx]=isOrder(q)?[...sel]:[...sel].sort();
   }else answers[curIdx]=i;
   if(isRight(q,answers[curIdx]))nCorrect++;else nWrong++;
-  updateStats(); show(curIdx);
+  updateStats(); show(curIdx,false);
   // אין מעבר אוטומטי – המשתמש לוחץ על "הבאה" בעצמו
 }
 
