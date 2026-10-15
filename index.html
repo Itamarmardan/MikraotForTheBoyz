@@ -9,7 +9,17 @@
 <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700;900&family=Heebo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body class="locked">
+<div id="gate">
+  <form id="gate-form" autocomplete="off">
+    <div class="gate-icon">🔒</div>
+    <h2>מקראות ישראל</h2>
+    <p>הכניסו קוד גישה כדי להמשיך</p>
+    <input id="gate-input" type="password" inputmode="numeric" placeholder="קוד גישה" aria-label="קוד גישה">
+    <button type="submit">כניסה</button>
+    <div id="gate-err" role="alert"></div>
+  </form>
+</div>
 <header>
   <h1>מקראות ישראל – בחינה</h1>
   <p>בנק שאלות אינטראקטיבי לקצונה · בה"ד 1</p>
@@ -75,6 +85,7 @@
   </div>
 </main>
 
+<script src="js/gate.js"></script>
 <script src="js/topics.js"></script>
 <script src="js/questions.js"></script>
 <script src="js/app.js"></script>
