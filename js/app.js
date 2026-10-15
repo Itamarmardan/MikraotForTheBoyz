@@ -1,15 +1,23 @@
 /* בדיקת תקינות הבנק – שאלה פגומה מדווחת בקונסול ולא שוברת את המבחן */
 Q.forEach((q,i)=>{
-  const ok=Array.isArray(q.a)?q.a.every(x=>q.o[x]!==undefined):q.o&&q.o[q.a]!==undefined;
+  const ok=q.t==='order'?(q.o&&q.o.length>=2):Array.isArray(q.a)?q.a.every(x=>q.o[x]!==undefined):q.o&&q.o[q.a]!==undefined;
   if(!CH[q.c]||!q.q||!Array.isArray(q.o)||!ok)console.warn('שאלה לא תקינה בבנק (מספר '+(i+1)+'):',q);
 });
 
 /* ======= STATE ======= */
 let currentCh='all', activeQ=[], curIdx=0, answers={}, pending={}, nCorrect=0, nWrong=0;
 
+/* סוגי שאלות: רגילה (a=מספר) · ריבוי תשובות (a=מערך) · סידור (t:'order', o=הפריטים בסדר הנכון) */
+const isOrder=q=>q.t==='order';
 const isMulti=q=>Array.isArray(q.a);
+const needed=q=>isOrder(q)?q.o.length:isMulti(q)?q.a.length:1;
 const correctSet=q=>isMulti(q)?q.a:[q.a];
-const isRight=(q,ans)=>isMulti(q)?(ans.length===q.a.length&&ans.every(x=>q.a.includes(x))):ans===q.a;
+const isRight=(q,ans)=>isOrder(q)?ans.every((v,i)=>v===i):isMulti(q)?(ans.length===q.a.length&&ans.every(x=>q.a.includes(x))):ans===q.a;
+/* סדר תצוגה קבוע לכל שאלת סידור (מעורבב, אף פעם לא הסדר הנכון) */
+function perm(q){
+  if(!q._perm){let p;do{p=shuffle(q.o.map((_,i)=>i));}while(p.every((v,i)=>v===i));q._perm=p;}
+  return q._perm;
+}
 
 const $=id=>document.getElementById(id);
 const answeredCount=()=>Object.keys(answers).length;
@@ -17,7 +25,7 @@ const answeredCount=()=>Object.keys(answers).length;
 function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
 function load(ch,override){
-  currentCh=ch; answers={}; pending={}; nCorrect=0; nWrong=0;
+  currentCh=ch; answers={}; pending={}; Q.forEach(q=>delete q._perm); nCorrect=0; nWrong=0;
   activeQ=override?override: ch==='all'?shuffle([...Q]):ch==='mk_all'?shuffle(Q.filter(q=>q.c.startsWith('mk'))):shuffle(Q.filter(q=>q.c===ch));
   document.querySelectorAll('.ch-btn').forEach(b=>b.classList.toggle('active',b.dataset.chapter===ch));
   curIdx=0;
@@ -38,17 +46,28 @@ function show(idx){
   $('q-chapter-label').textContent=CH[q.c]||q.c;
   $('q-counter').textContent=`שאלה ${idx+1} מתוך ${activeQ.length}`;
   $('q-text').textContent=q.q;
-  $('q-hint').textContent=isMulti(q)&&ans===undefined?`יש לבחור ${q.a.length} תשובות (${(pending[idx]||[]).length}/${q.a.length})`:'';
+  const sel=pending[idx]||[];
+  $('q-hint').textContent=ans!==undefined?'':isOrder(q)?`לחצו על הפריטים לפי הסדר הנכון (${sel.length}/${q.o.length})`:isMulti(q)?`יש לבחור ${q.a.length} תשובות (${sel.length}/${q.a.length})`:'';
   const list=$('options-list'); list.innerHTML='';
-  q.o.forEach((opt,i)=>{
+  (isOrder(q)?perm(q):q.o.map((_,i)=>i)).forEach(i=>{
+    const opt=q.o[i];
     const btn=document.createElement('button');
     btn.className='opt-btn';
+    if(isOrder(q)){
+      const pos=(ans!==undefined?ans:sel).indexOf(i);
+      if(ans!==undefined){btn.disabled=true;btn.classList.add(ans[pos]===pos?'correct':'wrong');}
+      else if(pos>=0)btn.classList.add('selected');
+      btn.innerHTML=`<span class="opt-letter">${pos>=0?pos+1:''}</span><span>${opt}</span>`;
+      btn.addEventListener('click',()=>pick(i));
+      list.appendChild(btn);
+      return;
+    }
     if(ans!==undefined){
       btn.disabled=true;
       const chosen=isMulti(q)?ans.includes(i):i===ans;
       if(correctSet(q).includes(i))btn.classList.add('correct');
       else if(chosen)btn.classList.add('wrong');
-    }else if(isMulti(q)&&(pending[idx]||[]).includes(i))btn.classList.add('selected');
+    }else if(isMulti(q)&&sel.includes(i))btn.classList.add('selected');
     btn.innerHTML=`<span class="opt-letter">${L[i]}</span><span>${opt}</span>`;
     btn.addEventListener('click',()=>pick(i));
     list.appendChild(btn);
@@ -57,7 +76,7 @@ function show(idx){
   if(ans!==undefined){
     const ok=isRight(q,ans);
     fb.className='show '+(ok?'correct-fb':'wrong-fb');
-    fb.innerHTML=`<div id="feedback-verdict">${ok?'✓ נכון!':'✗ לא נכון'}</div>${q.e?`<div>${q.e}</div>`:''}`;
+    fb.innerHTML=`<div id="feedback-verdict">${ok?'✓ נכון!':'✗ לא נכון'}</div>${isOrder(q)&&!ok?`<div><b>הסדר הנכון:</b><ol class="order-ans">${q.o.map(x=>`<li>${x}</li>`).join('')}</ol></div>`:''}${q.e?`<div>${q.e}</div>`:''}`;
   }else{fb.className='';fb.innerHTML='';}
   updateNav();
   const done=answeredCount();
@@ -79,11 +98,11 @@ function updateNav(){
 function pick(i){
   if(answers[curIdx]!==undefined)return;
   const q=activeQ[curIdx];
-  if(isMulti(q)){
+  if(isMulti(q)||isOrder(q)){
     const sel=pending[curIdx]=pending[curIdx]||[];
     const at=sel.indexOf(i); if(at>=0)sel.splice(at,1);else sel.push(i);
-    if(sel.length<q.a.length){show(curIdx);return;}
-    answers[curIdx]=[...sel].sort();
+    if(sel.length<needed(q)){show(curIdx);return;}
+    answers[curIdx]=isOrder(q)?[...sel]:[...sel].sort();
   }else answers[curIdx]=i;
   if(isRight(q,answers[curIdx]))nCorrect++;else nWrong++;
   updateStats(); show(curIdx);
@@ -136,7 +155,8 @@ document.addEventListener('keydown',e=>{
   if(e.key==='ArrowLeft'){if(!$('btn-next').disabled)goNext();return;}
   if(answers[curIdx]===undefined){
     const m={'1':0,'2':1,'3':2,'4':3,'א':0,'ב':1,'ג':2,'ד':3};
-    if(m[e.key]!==undefined&&m[e.key]<activeQ[curIdx].o.length)pick(m[e.key]);
+    const q=activeQ[curIdx];
+    if(m[e.key]!==undefined&&m[e.key]<q.o.length)pick(isOrder(q)?perm(q)[m[e.key]]:m[e.key]);
   }
 });
 
