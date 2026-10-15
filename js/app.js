@@ -45,7 +45,6 @@ function show(idx,fresh=true){
   const list=$('options-list');
   const sel=pending[idx]||[];
   if(fresh){
-    card.classList.remove('enter'); void card.offsetWidth; card.classList.add('enter');
     $('q-chapter-label').textContent=CH[q.c]||q.c;
     $('q-counter').textContent=`שאלה ${idx+1} מתוך ${activeQ.length}`;
     $('q-text').textContent=q.q;
@@ -116,11 +115,19 @@ function pick(i){
   // אין מעבר אוטומטי – המשתמש לוחץ על "הבאה" בעצמו
 }
 
+/* מעבר רך בין שאלות: דהייה קצרה החוצה, החלפת התוכן, דהייה פנימה */
+let moving=false;
+function fadeTo(fn){
+  if(moving)return; moving=true;
+  const card=$('q-card');
+  card.classList.add('fade-out');
+  setTimeout(()=>{fn();card.classList.remove('fade-out');setTimeout(()=>{moving=false;},260);},240);
+}
 function goNext(){
-  if(curIdx<activeQ.length-1)show(curIdx+1);
+  if(curIdx<activeQ.length-1)fadeTo(()=>show(curIdx+1));
   else if(answeredCount()===activeQ.length)result();
 }
-function goPrev(){if(curIdx>0)show(curIdx-1);}
+function goPrev(){if(curIdx>0)fadeTo(()=>show(curIdx-1));}
 
 function updateStats(){
   $('stat-total').textContent=activeQ.length;
@@ -144,7 +151,7 @@ function result(){
 }
 
 /* ======= EVENTS ======= */
-document.querySelectorAll('.ch-btn').forEach(b=>b.addEventListener('click',()=>load(b.dataset.chapter)));
+document.querySelectorAll('.ch-btn').forEach(b=>b.addEventListener('click',()=>{moving=false;load(b.dataset.chapter);}));
 $('btn-prev').addEventListener('click',goPrev);
 $('btn-next').addEventListener('click',goNext);
 $('btn-skip').addEventListener('click',()=>{
@@ -156,6 +163,7 @@ $('btn-retry').addEventListener('click',()=>{
   load(currentCh,shuffle(wrong));
 });
 document.addEventListener('keydown',e=>{
+  if(document.body.classList.contains('locked')||/INPUT|TEXTAREA|SELECT/.test((e.target||{}).tagName||''))return;
   if($('result-screen').classList.contains('show'))return;
   // חיצים (RTL): ימין = הקודמת, שמאל = הבאה
   if(e.key==='ArrowRight'){goPrev();return;}

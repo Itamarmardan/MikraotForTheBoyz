@@ -84,8 +84,8 @@ main{max-width:760px;margin:0 auto;padding:18px 14px 70px}
   background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);
   overflow:hidden;border:1px solid var(--border);
 }
-#q-card.enter{animation:softIn .35s ease-out}
-@keyframes softIn{from{opacity:.0;transform:translateY(6px)}to{opacity:1;transform:none}}
+#q-card{transition:opacity .24s ease}
+#q-card.fade-out{opacity:0}
 #q-header{
   background:linear-gradient(135deg,var(--navy),var(--navy-2));
   padding:13px 20px;display:flex;justify-content:space-between;align-items:center;
@@ -117,18 +117,17 @@ main{max-width:760px;margin:0 auto;padding:18px 14px 70px}
   color:var(--navy);font-weight:700;font-size:.85rem;flex-shrink:0;transition:background-color .35s ease,color .35s ease,border-color .35s ease;
 }
 .opt-btn:hover:not(:disabled) .opt-letter{background:var(--navy);color:var(--gold);border-color:var(--navy)}
+.opt-btn.correct,.opt-btn.wrong,.opt-btn.selected,.opt-btn:disabled{transition:none}
 .opt-btn.correct{background:var(--green-bg);border-color:var(--green)}
 .opt-btn.correct .opt-letter{background:var(--green);color:#fff;border-color:var(--green)}
 .opt-btn.wrong{background:var(--red-bg);border-color:var(--red)}
 .opt-btn.wrong .opt-letter{background:var(--red);color:#fff;border-color:var(--red)}
 .opt-btn:disabled{cursor:default}
-.opt-btn:disabled:not(.correct):not(.wrong){opacity:.55}
 @keyframes shake{25%{transform:translateX(5px)}50%{transform:translateX(-5px)}75%{transform:translateX(3px)}}
 
 /* ===== feedback ===== */
 #feedback-box{display:none;margin:0 18px 16px;padding:14px 16px;border-radius:11px;font-size:.93rem;line-height:1.7}
-#feedback-box.show{display:block;animation:fadeUp .45s ease-out}
-#feedback-box.show.instant{animation:none}
+#feedback-box.show{display:block}
 @keyframes fadeUp{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 #feedback-box.correct-fb{background:var(--green-bg);border-right:5px solid var(--green);color:#173d29}
 #feedback-box.wrong-fb{background:var(--red-bg);border-right:5px solid var(--red);color:#4a1020}
@@ -211,3 +210,4 @@ body.locked>header,body.locked>#chapter-bar,body.locked>#stats-bar,body.locked>m
 }
 #gate-form button:hover{background:var(--navy-3)}
 #gate-err{color:var(--red);font-size:.85rem;min-height:1.3em;margin-top:10px;font-weight:600}
+.opt-btn:disabled .opt-letter,.opt-btn.selected .opt-letter{transition:none}
