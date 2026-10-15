@@ -2,8 +2,8 @@
    לשינוי הקוד: מחשבים hash(קוד חדש) ומחליפים את ACCESS_HASH.
    הערה: זו הגנה בסיסית בצד הלקוח בלבד – לא אבטחה אמיתית. */
 (function(){
-  const ACCESS_HASH=304361603456167;
-  const KEY='mikraot_access';
+  const ACCESS_HASH=5539916872094632;
+  const KEY='mikraot_access_v2';
   const hash=(s,seed=0)=>{
     let h1=0xdeadbeef^seed,h2=0x41c6ce57^seed;
     for(let i=0,ch;i<s.length;i++){ch=s.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677);}
