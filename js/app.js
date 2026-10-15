@@ -1,3 +1,9 @@
+/* בדיקת תקינות הבנק – שאלה פגומה מדווחת בקונסול ולא שוברת את המבחן */
+Q.forEach((q,i)=>{
+  const ok=Array.isArray(q.a)?q.a.every(x=>q.o[x]!==undefined):q.o&&q.o[q.a]!==undefined;
+  if(!CH[q.c]||!q.q||!Array.isArray(q.o)||!ok)console.warn('שאלה לא תקינה בבנק (מספר '+(i+1)+'):',q);
+});
+
 /* ======= STATE ======= */
 let currentCh='all', activeQ=[], curIdx=0, answers={}, pending={}, nCorrect=0, nWrong=0;
 
