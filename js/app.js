@@ -112,6 +112,8 @@ function pick(i){
   }else answers[curIdx]=i;
   if(isRight(q,answers[curIdx]))nCorrect++;else nWrong++;
   updateStats(); show(curIdx,false);
+  // גלילה עדינה כך שההסבר וכפתור "הבאה" ייראו
+  $('nav-row').scrollIntoView({behavior:'smooth',block:'nearest'});
   // אין מעבר אוטומטי – המשתמש לוחץ על "הבאה" בעצמו
 }
 
@@ -123,11 +125,12 @@ function fadeTo(fn){
   card.classList.add('fade-out');
   setTimeout(()=>{fn();card.classList.remove('fade-out');setTimeout(()=>{moving=false;},260);},240);
 }
+const toCard=()=>$('q-card').scrollIntoView({behavior:'smooth',block:'start'});
 function goNext(){
-  if(curIdx<activeQ.length-1)fadeTo(()=>show(curIdx+1));
+  if(curIdx<activeQ.length-1)fadeTo(()=>{show(curIdx+1);toCard();});
   else if(answeredCount()===activeQ.length)result();
 }
-function goPrev(){if(curIdx>0)fadeTo(()=>show(curIdx-1));}
+function goPrev(){if(curIdx>0)fadeTo(()=>{show(curIdx-1);toCard();});}
 
 function updateStats(){
   $('stat-total').textContent=activeQ.length;
