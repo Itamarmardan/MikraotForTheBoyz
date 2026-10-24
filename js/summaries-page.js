@@ -5,7 +5,11 @@
   const md=s=>esc(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
   const list=$('sum-list'),index=$('sum-index'),search=$('sum-search');
 
+  let lastG=null;
   SUMMARIES.forEach(ch=>{
+    if(ch.group!==lastG){lastG=ch.group;
+      const g=document.createElement('h2');g.className='grp';g.textContent=ch.group;list.appendChild(g);
+      const gi=document.createElement('span');gi.className='grp-lbl';gi.textContent=ch.group+':';index.appendChild(gi);}
     const d=document.createElement('details');
     d.className='chap';d.id=ch.id;
     d.innerHTML='<summary>'+esc(ch.title)+'<span class="pg">עמ\' '+esc(ch.pages)+'</span></summary>'+
@@ -50,6 +54,13 @@
       });
       d.classList.toggle('hidden',!!q&&hits===0);
       if(q)d.open=hits>0;
+    });
+  });
+  search.addEventListener('input',()=>{
+    list.querySelectorAll('h2.grp').forEach(h=>{
+      let n=h.nextElementSibling,any=false;
+      while(n&&!n.classList.contains('grp')){if(!n.classList.contains('hidden'))any=true;n=n.nextElementSibling;}
+      h.classList.toggle('hidden',!any);
     });
   });
 })();
