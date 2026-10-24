@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מקראות ישראל – סיכומים</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700;900&family=Heebo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="locked">
+<div id="gate">
+  <form id="gate-form" autocomplete="off">
+    <div class="gate-icon">🔒</div>
+    <h2>מקראות ישראל</h2>
+    <p>הכניסו קוד גישה כדי להמשיך</p>
+    <input id="gate-input" type="password" inputmode="numeric" placeholder="קוד גישה" aria-label="קוד גישה">
+    <button type="submit">כניסה</button>
+    <div id="gate-err" role="alert"></div>
+  </form>
+</div>
+<header>
+  <h1>סיכומים</h1>
+  <p>סיכום האוגדן לפי פרקים · תאריכים, אישים ומה שנשאל</p>
+  <div class="top-links"><a class="top-link" href="index.html">← חזרה לשאלון</a></div>
+</header>
+
+<div id="sum-wrap">
+  <div id="sum-tools">
+    <input id="sum-search" type="search" placeholder="חיפוש בסיכומים (שם, תאריך, מושג)…" aria-label="חיפוש">
+    <button class="sum-btn" id="sum-open">פתח הכל</button>
+    <button class="sum-btn" id="sum-close">סגור הכל</button>
+  </div>
+  <div id="sum-index"></div>
+  <p id="sum-note">הסיכום נכתב על בסיס האוגדן ועלול להכיל אי-דיוקים בפרטים (במיוחד במספרים); בכל ספק – הספר הוא המקור.</p>
+  <div id="sum-list"></div>
+</div>
+
+<script src="js/gate.js"></script>
+<script src="js/summaries.js"></script>
+<script src="js/summaries-page.js"></script>
+</body>
+</html>
