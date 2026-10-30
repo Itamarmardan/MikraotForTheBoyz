@@ -5,7 +5,7 @@ Q.forEach((q,i)=>{
 });
 
 /* ======= STATE ======= */
-let currentCh='all', activeQ=[], curIdx=0, answers={}, pending={}, nCorrect=0, nWrong=0;
+let currentCh='all', currentBatch='all', activeQ=[], curIdx=0, answers={}, pending={}, nCorrect=0, nWrong=0;
 
 /* סוגי שאלות: רגילה (a=מספר) · ריבוי תשובות (a=מערך) · סידור (t:'order', o=הפריטים בסדר הנכון) */
 const isOrder=q=>q.t==='order';
@@ -26,15 +26,20 @@ function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Mat
 
 function load(ch,override){
   currentCh=ch; answers={}; pending={}; Q.forEach(q=>delete q._perm); nCorrect=0; nWrong=0;
-  activeQ=override?override: ch==='all'?shuffle([...Q]):ch==='mk_all'?shuffle(Q.filter(q=>q.c.startsWith('mk'))):shuffle(Q.filter(q=>q.c===ch));
-  document.querySelectorAll('.ch-btn').forEach(b=>b.classList.toggle('active',b.dataset.chapter===ch));
+  const inBatch=q=>currentBatch==='all'||q.b===currentBatch;
+  const inCh=q=>ch==='all'||(ch==='mk_all'?q.c.startsWith('mk'):q.c===ch);
+  activeQ=override?override:shuffle(Q.filter(q=>inCh(q)&&inBatch(q)));
+  document.querySelectorAll('.ch-btn:not(.bt-btn)').forEach(b=>b.classList.toggle('active',b.dataset.chapter===ch));
+  document.querySelectorAll('.bt-btn').forEach(b=>b.classList.toggle('active',b.dataset.batch===currentBatch));
   curIdx=0;
   updateStats();
-  show(0);
+  const empty=activeQ.length===0;
+  $('empty-note').style.display=empty?'block':'none';
   $('result-screen').classList.remove('show');
-  $('q-card').style.display='';
-  $('btn-skip').style.display='';
-  $('progress-wrap').style.display='';
+  $('q-card').style.display=empty?'none':'';
+  $('btn-skip').style.display=empty?'none':'';
+  $('progress-wrap').style.display=empty?'none':'';
+  if(!empty)show(0);
 }
 
 function show(idx,fresh=true){
@@ -154,7 +159,8 @@ function result(){
 }
 
 /* ======= EVENTS ======= */
-document.querySelectorAll('.ch-btn').forEach(b=>b.addEventListener('click',()=>{moving=false;load(b.dataset.chapter);}));
+document.querySelectorAll('.ch-btn:not(.bt-btn)').forEach(b=>b.addEventListener('click',()=>{moving=false;load(b.dataset.chapter);}));
+document.querySelectorAll('.bt-btn').forEach(b=>b.addEventListener('click',()=>{moving=false;currentBatch=b.dataset.batch;load(currentCh);}));
 $('btn-prev').addEventListener('click',goPrev);
 $('btn-next').addEventListener('click',goNext);
 $('btn-skip').addEventListener('click',()=>{

@@ -244,3 +244,5 @@ mark{background:#ffe27a;border-radius:3px;padding:0 2px}
 
 h2.grp{font-family:'Frank Ruhl Libre',serif;color:var(--gold-dk);font-size:1.25rem;margin:26px 0 10px;padding-bottom:4px;border-bottom:2px solid var(--gold)}
 .grp-lbl{flex-basis:100%;font-size:.78rem;font-weight:700;color:var(--muted);margin-top:6px}
+
+#empty-note{display:none;text-align:center;padding:40px 16px;color:var(--muted);font-weight:600}
